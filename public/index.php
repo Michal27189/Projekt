@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Hasło
                         <input name="haslo" maxlength="50" value="<?= h($email) ?>"required>
                     </label>
-                <?php endif: ?>
+                <?php endif; ?>
 
                 <?php if ($strona === 'rejestracja'): ?>
                     <label>
