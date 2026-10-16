@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         <?php else: ?>
             <p>
-                <a href="?strona=logownaie">Logownaie</a>
+                <a href="?strona=logowanie">Logownaie</a>
                 <a href="?strona=rejestracja">Rejestracja</a>
             </p>
         <?php endif; ?>
