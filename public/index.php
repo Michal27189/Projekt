@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wypożyczalnia - <?= h($strona) ?></title>
-    <link rel="stylesheet" herf="../css/styl.css">
+    <link rel="stylesheet" href="../css/styl.css">
 </head>
 <body>
     <main>
@@ -110,18 +110,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if($user): ?>
             <p>
-                <a herf="index.php">Mój panel</a>
-                <a herf="?strona=profil">Mój profil</a>
+                <a href="index.php">Mój panel</a>
+                <a href="?strona=profil">Mój profil</a>
             </p>
 
             <form method="post">
                 <input type="hidden" name="token" value="<?= h($_SESSION['token']) ?>">
-                <botton name="akcja" value="wyloguj">Wyloguj się</button>
+                <button name="akcja" value="wyloguj">Wyloguj się</button>
             </form>
         <?php else: ?>
             <p>
-                <a herf="?strona=logownaie">Logownaie</a>
-                <a herf="?strona=rejestracja">Rejestracja</a>
+                <a href="?strona=logowanie">Logownaie</a>
+                <a href="?strona=rejestracja">Rejestracja</a>
             </p>
         <?php endif; ?>
 
@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?= $strona === 'logowanie'
                         ? 'Zaloguj się'
                         : ($strona === 'rejestracja' ? 'Utwórz konto' : 'Zapisz zmiany') ?>
-                </bottom>
+                </button>
             </form>
         <?php else: ?>
             <h2>Panel: <?= h($strona) ?></h2>
