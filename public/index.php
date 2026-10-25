@@ -1,28 +1,8 @@
 <?php
-// 1. Sesja i wspólne ustawienia.
-ini_set('display_errors', '0');
-ini_set('log_errors', '1');
-set_exception_handler(function (Throwable $blad) {
-    error_log((string) $blad);
-    http_response_code(500);
-    exit('Błąd serwera. Sprawdź log PHP i konfigurację bazy.');
-});
-session_start(['use_strict_mode' => true, 'cookie_httponly' => true,
-    'cookie_samesite' => 'Lax',
-    'cookie_secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
-require __DIR__ . '/baza.php';
 
-// Dwie funkcje: bezpieczny tekst z formularza i bezpieczny tekst do HTML.
-function pole($nazwa) {
-    return isset($_POST[$nazwa]) && is_string($_POST[$nazwa]) ? $_POST[$nazwa] : '';
-}
-function h($tekst) {
-    return htmlspecialchars((string) $tekst, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-if (empty($_SESSION['token'])) $_SESSION['token'] = bin2hex(random_bytes(32));
+// 1. Połączenie z /start.php.
+require __DIR__ . '/start.php';
 
-// 2. Aktualne konto z bazy.
-$user = null;
 if (!empty($_SESSION['id'])) {
     $q = $pdo->prepare('SELECT id, name, surname, email, phone, role, active FROM users WHERE id = ?');
     $q->execute([$_SESSION['id']]);
@@ -37,7 +17,7 @@ $strona = isset($_GET['strona']) && is_string($_GET['strona']) ? $_GET['strona']
 $dozwolone = ['logowanie', 'rejestracja', 'profil', 'klient', 'pracownik', 'administrator'];
 if (!in_array($strona, $dozwolone, true)) { http_response_code(404); exit('Nie ma takiej strony.'); }
 
-// 3. Ochrona stron przed wyświetleniem HTML.
+// 2. Ochrona stron przed wyświetleniem HTML.
 if (in_array($strona, ['profil', 'klient', 'pracownik', 'administrator'], true)) {
     if (!$user) { header('Location: index.php?strona=logowanie'); exit; }
     if ($strona !== 'profil' && $strona !== ($role[$user['role']] ?? '')) {
@@ -53,7 +33,7 @@ $nazwisko = $user['surname'] ?? '';
 $telefon = $user['phone'] ?? '';
 $email = '';
 
-// 4. Obsługa formularzy. Wylogowanie.
+// 3. Obsługa formularzy. Wylogowanie.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($_SESSION['token'], pole('token'))) {
         http_response_code(403); exit('Nieprawidłowy formularz. Odśwież stronę.');
@@ -197,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Hasło
                         <input name="haslo" maxlength="50" value="<?= h($email) ?>"required>
                     </label>
-                <?php endif: ?>
+                <?php endif; ?>
 
                 <?php if ($strona === 'rejestracja'): ?>
                     <label>
@@ -216,6 +196,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Panel: <?= h($strona) ?></h2>
             <p>Witaj, <?= h($user['name'] . ' ' . $user['surname']) ?>!</p>
             <p>Panel jest chroniony. Funkcje zarządzania i rezerwacji zostaną dodane w kolejnych etapach.</p>
+
+            <?php if ($strona === 'administrator'): ?>
+                <p><a herf="admin.php">Przejdź do panelu zarządzania</a></p>
+            <?php endif; ?>
         <?php endif; ?>
     </main>
 </body>
