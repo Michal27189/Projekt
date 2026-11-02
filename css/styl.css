@@ -1,11 +1,27 @@
+/* ========== Kolory ========== */
+:root {
+    --tlo: aliceblue;
+    --tekst: midnightblue;
+    --akcent: #00a6ff;          /* główny niebieski: przyciski zapisu */
+    --akcent-ciemny: #1e40af;   /* tytuł, nagłówki tabel */
+    --akcent-jasny: #dbeafe;    /* podświetlenie wiersza */
+    --pasek: #ededed;           /* co drugi wiersz tabeli */
+    --link: #00a6ff;
+    --szukaj: #018bd5;          /* Szukaj, Filtruj */
+    --zielony: #15803d;         /* Zmień status */
+    --ostrzezenie: #fbc32b;     /* aktywuj / dezaktywuj */
+    --usuwanie: #b91c1c;
+    --neutralny: #00a6ff;       /* wyloguj */
+}
+
 * {
     box-sizing: border-box;
 }
 
 body {
     font-family: Arial, sans-serif;
-    background: aliceblue;
-    color: midnightblue;
+    background: var(--tlo);
+    color: var(--tekst);
     margin: 0;
     padding: 15px;
     line-height: 1.5;
@@ -21,6 +37,7 @@ main {
 
 h1 {
     font-size: 1.5rem;
+    color: var(--akcent-ciemny);
 }
 
 label {
@@ -37,12 +54,16 @@ input:not([type=hidden]) {
 }
 
 button {
-    background: steelblue;
+    background: var(--akcent);
     color: white;
     border: 0;
     padding: 10px 16px;
     cursor: pointer;
     font: inherit;
+}
+
+button:hover {
+    filter: brightness(0.9);
 }
 
 a {
@@ -51,10 +72,16 @@ a {
 
 .blad {
     color: firebrick;
+    background: #fef2f2;
+    border-left: 4px solid var(--usuwanie);
+    padding: 8px 12px;
 }
 
 .sukces {
-    color: darkgreen;
+    color: #166534;
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 8px 12px;
 }
 
 :focus-visible {
@@ -67,4 +94,169 @@ a {
         padding: 15px;
         margin: 0 auto;
     }
+}
+
+main.szeroki {
+    max-width: 1100px;
+}
+
+nav.menu a {
+    margin-right: 12px;
+}
+
+nav.menu a.aktywny {
+    font-weight: bold;
+    color: var(--akcent-ciemny);
+}
+
+.tabela {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.9rem;
+}
+
+th,
+td {
+    border: 1px solid lightgray;
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background: var(--akcent-ciemny);
+    color: white;
+    border-color: var(--akcent-ciemny);
+}
+
+tr:nth-child(even) td {
+    background: var(--pasek);
+}
+
+tr:hover td {
+    background: var(--akcent-jasny);
+}
+
+td form {
+    display: inline;
+    margin: 0;
+}
+
+input[type=checkbox] {
+    display: inline;
+    width: auto;
+}
+
+td input:not([type=hidden]) {
+    display: inline;
+    width: auto;
+}
+
+select {
+    padding: 8px;
+    font: inherit;
+}
+
+button.maly {
+    padding: 4px 8px;
+    font-size: 0.85rem;
+}
+
+/* Szukaj, Filtruj */
+.filtry button {
+    background: var(--szukaj);
+}
+
+/* Zmień status rezerwacji */
+button[value="rezerwacja_status"] {
+    background: var(--zielony);
+}
+
+/* Aktywuj / Dezaktywuj */
+button[value$="_aktywnosc"] {
+    background: var(--ostrzezenie);
+}
+
+/* Usuń */
+button.usun {
+    background: var(--usuwanie);
+}
+
+/* Wyloguj się */
+button[value="wyloguj"] {
+    background: var(--neutralny);
+}
+
+.karty {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.karta {
+    flex: 1 1 150px;
+    background: var(--akcent-jasny);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.karta strong {
+    display: block;
+    font-size: 1.8rem;
+    color: var(--link);
+}
+
+/* Każda karta dashboardu w innym kolorze */
+.karta:nth-child(2) {
+    background: #dcfce7;
+}
+
+.karta:nth-child(2) strong {
+    color: var(--zielony);
+}
+
+.karta:nth-child(3) {
+    background: #fef3c7;
+}
+
+.karta:nth-child(3) strong {
+    color: var(--ostrzezenie);
+}
+
+.karta:nth-child(4) {
+    background: #ede9fe;
+}
+
+.karta:nth-child(4) strong {
+    color: #6d28d9;
+}
+
+.karta:nth-child(5) {
+    background: #cffafe;
+}
+
+.karta:nth-child(5) strong {
+    color: var(--szukaj);
+}
+
+.filtry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+}
+
+.filtry label {
+    margin: 0;
+}
+
+.strony a,
+.strony strong {
+    margin-right: 6px;
 }
