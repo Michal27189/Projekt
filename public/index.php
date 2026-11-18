@@ -112,6 +112,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>
                 <a href="index.php">Mój panel</a>
                 <a href="?strona=profil">Mój profil</a>
+                <a href="oferta.php">Oferta</a>
+                <?php if ($user['role'] === 'client'): ?>
+                    <a href="moje_rezerwacje.php">Moje rezerwacje</a>
+                <?php elseif ($user['role'] === 'employee'): ?>
+                    <a href="pracownik.php">Moje wizyty</a>
+                <?php endif; ?>
             </p>
 
             <form method="post">
@@ -196,7 +202,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Panel: <?= h($strona) ?></h2>
             <p>Witaj, <?= h($user['name'] . ' ' . $user['surname']) ?>!</p>
             <p>Panel jest chroniony. Funkcje zarządzania i rezerwacji zostaną dodane w kolejnych etapach.</p>
-
+            <?php if ($strona === 'klient'): ?>
+                <p><a href="oferta.php">Przeglądaj ofertę</a> lub <a href="moje_rezerwacje.php">sprawdź swoje rezerwacje</a>.</p>
+            <?php elseif ($strona === 'pracownik'): ?>
+                <p><a href="pracownik.php">Zobacz swoje wizyty</a>.</p>
+            <?php endif; ?>
             <?php if ($strona === 'administrator'): ?>
                 <p><a herf="admin.php">Przejdź do panelu zarządzania</a></p>
             <?php endif; ?>
