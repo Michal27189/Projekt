@@ -19,6 +19,16 @@ Aplikacja pozwala klientom przeglądać dostępny sprzęt komputerowy, wybierać
 
 `public/baza.php` - to tylko połączenie z bazą.
 
+`public/rezerwacje_funkcje.php` - wspólne funkcje rezerwacji: godziny pracy, kolizje terminów, menu i kontrola roli
+
+`public/oferta.php` - lista i szczegóły aktywnego sprzętu, filtr kategorii
+
+`public/rezerwuj.php` - proces rezerwacji klienta (pracownik, data, godzina, potwierdzenie)
+
+`public/moje_rezerwacje.php` - rezerwacje klienta i anulowanie
+
+`public/pracownik.php` - panel pracownika: wizyty, szczegóły, zmiana statusu
+
 `css/styl.css` - wygląd.
 
 ## Użytkownicy
@@ -150,3 +160,68 @@ Przycisk **Dezaktywuj** blokuje konto, które nie może się wtedy zalogować. *
 2. Wybierz nowy status z listy w wierszu rezerwacji i kliknij **Zmień**.
 
 **Dostępne statusy:** oczekująca, potwierdzona, zrealizowana, anulowana. Anulowanie to zmiana statusu na `„anulowana"`, dzięki czemu historia rezerwacji zostaje w bazie. Po zmianie pojawia się komunikat `„Zmieniono status rezerwacji."`.
+
+### 7. Oferta sprzętu
+
+1. Kliknij **Oferta** w menu. Strona jest dostępna także bez logowania.
+2. Wybierz kategorię z listy i kliknij **Filtruj**.
+3. Kliknij **Szczegóły** przy sprzęcie.
+
+**Oczekiwany wynik:** lista zawiera tylko aktywny sprzęt z nazwą, kategorią, ceną za dobę i kaucją. Szczegóły pokazują opis i informację o dostępności. Zalogowany klient widzi dodatkowo link **Zarezerwuj**. Pracownik i administrator go nie widzą.
+
+### 8. Rezerwacja sprzętu (klient)
+
+Proces przebiega w kolejności: sprzęt, pracownik, data, godzina, potwierdzenie.
+
+1. Zaloguj się jako klient, kliknij **Oferta** i **Zarezerwuj** przy wybranym sprzęcie.
+2. Wybierz pracownika. Lista zawiera tylko osoby obsługujące ten sprzęt.
+3. Wybierz datę odbioru i kliknij **Pokaż godziny**. Nad formularzem widać godziny pracy pracownika.
+4. Wybierz godzinę odbioru z listy wolnych godzin oraz liczbę dób (1–14) i kliknij **Dalej**.
+5. Sprawdź podsumowanie (sprzęt, pracownik, odbiór, zwrot, cena wynajmu, kaucja) i kliknij **Potwierdzam rezerwację**.
+
+**Oczekiwany wynik:** przejście do „Moje rezerwacje" z komunikatem `„Rezerwacja została zapisana i czeka na potwierdzenie.”`. Rezerwacja ma status „oczekująca". Termin zwrotu to odbiór plus wybrana liczba dób o tej samej godzinie, a cena wynajmu to liczba dób razy cena za dobę.
+
+**Kontrola terminu:** serwer sprawdza termin przy podsumowaniu i jeszcze raz tuż przed zapisem (w transakcji z blokadą wiersza sprzętu). Nie da się jej ominąć zmianą danych w formularzu ani zarezerwować tego samego terminu jednocześnie z dwóch kont.
+
+| Sytuacja | Oczekiwany komunikat |
+|---|---|
+| Odbiór w przeszłości | „Nie można rezerwować terminu z przeszłości." |
+| Odbiór poza godzinami pracy pracownika | „Odbiór (…) wypada poza godzinami pracy pracownika." |
+| Zwrot w dniu lub o godzinie, gdy pracownik nie pracuje (np. piątek + 1 doba przy pracowniku bez soboty) | „Zwrot (…) wypada poza godzinami pracy pracownika. Wybierz inną liczbę dni." |
+| Termin nachodzi na aktywną rezerwację tego sprzętu | „Ten sprzęt jest już zarezerwowany w wybranym terminie." |
+| Dzień bez wolnych godzin | „Brak wolnych godzin odbioru w tym dniu. Wybierz inną datę." |
+
+Kolizję wykrywa warunek: początek nowej rezerwacji jest przed końcem istniejącej **i** koniec nowej jest po początku istniejącej. Obejmuje on nakładanie częściowe i całkowite. Aktywne są rezerwacje ze statusem „oczekująca" i „potwierdzona", więc anulowane i zrealizowane nie blokują sprzętu.
+
+Przykład dla istniejącej rezerwacji od D 10:00 do D+3 10:00:
+
+| Nowy termin | Wynik |
+|---|---|
+| D−1 10:00 do D+1 10:00 | zablokowany |
+| D 10:00 do D+3 10:00 | zablokowany |
+| D+1 10:00 do D+2 10:00 | zablokowany |
+| D+2 10:00 do D+4 10:00 | zablokowany |
+| D−1 10:00 do D+4 10:00 | zablokowany |
+| D−2 10:00 do D 10:00 | dozwolony |
+| D+3 10:00 do D+4 10:00 | dozwolony |
+
+Terminy kończące się dokładnie w chwili początku innej rezerwacji, i odwrotnie, są dozwolone, o ile mieszczą się w godzinach pracy pracownika.
+
+### 9. Moje rezerwacje (klient)
+
+1. Kliknij **Moje rezerwacje** w menu.
+2. W sekcji **Aktualne i przyszłe** widzisz swoje aktywne rezerwacje: sprzęt, pracownika, odbiór, zwrot, cenę i status.
+3. Aby anulować rezerwację, kliknij **Anuluj** i potwierdź w oknie.
+
+**Oczekiwany wynik:** komunikat `„Rezerwacja została anulowana.”`, a rezerwacja przechodzi do sekcji **Zakończone i anulowane** ze statusem „anulowana". Rezerwację można anulować tylko wtedy, gdy jej odbiór jest w przyszłości. Klient widzi wyłącznie własne rezerwacje. Próba anulowania cudzej rezerwacji przez zmianę `id` w formularzu kończy się komunikatem `„Tej rezerwacji nie można anulować.”`.
+
+### 10. Panel pracownika
+
+1. Zaloguj się jako pracownik i kliknij **Moje wizyty**.
+2. Rezerwacje są podzielone na trzy sekcje: **Dziś i w trakcie**, **Przyszłe** i **Historia**.
+3. Kliknij **Szczegóły**, aby zobaczyć dane klienta (imię, nazwisko, telefon, e-mail), sprzęt, termin, cenę i uwagi.
+4. Wybierz nowy status z listy i kliknij **Zmień**.
+
+**Oczekiwany wynik:** komunikat `„Zmieniono status rezerwacji.”`. Zmiana jest widoczna także w panelu klienta i administratora.
+
+Pracownik widzi i zmienia tylko rezerwacje przypisane do niego. Otwarcie cudzej rezerwacji (`pracownik.php?id=…`) pokazuje `„Nie masz dostępu do tej rezerwacji.”`. Przywrócenie anulowanej rezerwacji na aktywną jest możliwe tylko wtedy, gdy termin nie jest zajęty przez inną rezerwację (`„Nie można przywrócić rezerwacji: termin jest już zajęty przez inną rezerwację.”`).
